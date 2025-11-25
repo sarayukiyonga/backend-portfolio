@@ -1,0 +1,260 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Models\UsuarioModel;
+use App\Models\RolModel;
+
+class Admin extends BaseController
+{
+    protected $usuarioModel;
+    protected $rolModel;
+    
+    public function __construct()
+    {
+        $this->usuarioModel = new UsuarioModel();
+        $this->rolModel = new RolModel();
+        helper(['form', 'url']);
+    }
+    
+    // Verificar que el usuario sea admin
+    private function verificarAdmin()
+    {
+        if (!session()->has('usuario_id') || session()->get('usuario_rol') != 'admin') {
+            return redirect()->to('/auth/login')->with('error', 'Acceso denegado. Solo administradores.');
+        }
+        return null;
+    }
+    
+    // Dashboard del admin
+    public function dashboard()
+    {
+        $redirect = $this->verificarAdmin();
+        if ($redirect) return $redirect;
+        
+        $data = [
+            'titulo' => 'Panel de Administración',
+            'usuarios' => $this->usuarioModel->listarUsuarios()
+        ];
+        
+        return view('admin/dashboard', $data);
+    }
+    
+    // Listar usuarios
+    public function usuarios()
+    {
+        $redirect = $this->verificarAdmin();
+        if ($redirect) return $redirect;
+        
+        $data = [
+            'titulo' => 'Gestión de Usuarios',
+            'usuarios' => $this->usuarioModel->listarUsuarios()
+        ];
+        
+        return view('admin/usuarios', $data);
+    }
+    
+    // Crear usuario
+    public function crearUsuario()
+    {
+        $redirect = $this->verificarAdmin();
+        if ($redirect) return $redirect;
+        
+        $data = [
+            'titulo' => 'Crear Usuario',
+            'roles' => $this->rolModel->getRolesParaSelect()
+        ];
+        
+        return view('admin/crear_usuario', $data);
+    }
+    
+    // Guardar usuario
+    public function guardarUsuario()
+    {
+        $redirect = $this->verificarAdmin();
+        if ($redirect) return $redirect;
+        
+        $validation = \Config\Services::validation();
+        
+        $rules = [
+            'nombre' => 'required|min_length[3]|max_length[100]',
+            'email' => 'required|valid_email|is_unique[usuarios.email]',
+            'password' => 'required|min_length[6]',
+            'rol_id' => 'required|integer'
+        ];
+        
+        $messages = [
+            'nombre' => [
+                'required' => 'El nombre es requerido',
+                'min_length' => 'El nombre debe tener al menos 3 caracteres'
+            ],
+            'email' => [
+                'required' => 'El email es requerido',
+                'valid_email' => 'Debe ingresar un email válido',
+                'is_unique' => 'Este email ya está registrado'
+            ],
+            'password' => [
+                'required' => 'La contraseña es requerida',
+                'min_length' => 'La contraseña debe tener al menos 6 caracteres'
+            ],
+            'rol_id' => [
+                'required' => 'Debe seleccionar un rol',
+                'integer' => 'Rol inválido'
+            ]
+        ];
+        
+        $validation->setRules($rules, $messages);
+        
+        if (!$validation->withRequest($this->request)->run()) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        }
+        
+        $data = [
+            'nombre' => $this->request->getPost('nombre'),
+            'email' => $this->request->getPost('email'),
+            'password' => $this->request->getPost('password'),
+            'rol_id' => $this->request->getPost('rol_id'),
+            'activo' => 1
+        ];
+        
+        if ($this->usuarioModel->insert($data)) {
+            return redirect()->to('/admin/usuarios')->with('success', 'Usuario creado correctamente');
+        } else {
+            return redirect()->back()->withInput()->with('error', 'Error al crear el usuario');
+        }
+    }
+    
+    // Editar usuario
+    public function editarUsuario($id)
+    {
+        $redirect = $this->verificarAdmin();
+        if ($redirect) return $redirect;
+        
+        $usuario = $this->usuarioModel->find($id);
+        
+        if (!$usuario) {
+            return redirect()->to('/admin/usuarios')->with('error', 'Usuario no encontrado');
+        }
+        
+        $data = [
+            'titulo' => 'Editar Usuario',
+            'usuario' => $usuario,
+            'roles' => $this->rolModel->getRolesParaSelect()
+        ];
+        
+        return view('admin/editar_usuario', $data);
+    }
+    
+    // Actualizar usuario
+    public function actualizarUsuario($id)
+    {
+        $redirect = $this->verificarAdmin();
+        if ($redirect) return $redirect;
+        
+        $validation = \Config\Services::validation();
+        
+        // Reglas base
+        $rules = [
+            'nombre' => 'required|min_length[3]|max_length[100]',
+            'email' => "required|valid_email|is_unique[usuarios.email,id,{$id}]",
+            'rol_id' => 'required|integer'
+        ];
+        
+        $messages = [
+            'nombre' => [
+                'required' => 'El nombre es requerido',
+                'min_length' => 'El nombre debe tener al menos 3 caracteres'
+            ],
+            'email' => [
+                'required' => 'El email es requerido',
+                'valid_email' => 'Debe ingresar un email válido',
+                'is_unique' => 'Este email ya está registrado'
+            ],
+            'rol_id' => [
+                'required' => 'Debe seleccionar un rol',
+                'integer' => 'Rol inválido'
+            ]
+        ];
+        
+        // Solo validar password si se proporciona
+        $password = $this->request->getPost('password');
+        if (!empty($password)) {
+            $rules['password'] = 'min_length[6]';
+            $messages['password'] = [
+                'min_length' => 'La contraseña debe tener al menos 6 caracteres'
+            ];
+        }
+        
+        $validation->setRules($rules, $messages);
+        
+        if (!$validation->withRequest($this->request)->run()) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        }
+        
+        $data = [
+            'nombre' => $this->request->getPost('nombre'),
+            'email' => $this->request->getPost('email'),
+            'rol_id' => $this->request->getPost('rol_id')
+        ];
+        
+        // Solo actualizar password si se proporciona
+        if (!empty($password)) {
+            $data['password'] = $password;
+        }
+        
+        if ($this->usuarioModel->update($id, $data)) {
+            return redirect()->to('/admin/usuarios')->with('success', 'Usuario actualizado correctamente');
+        } else {
+            $errors = $this->usuarioModel->errors();
+            if (!empty($errors)) {
+                return redirect()->back()->withInput()->with('errors', $errors);
+            }
+            return redirect()->back()->withInput()->with('error', 'Error al actualizar el usuario');
+        }
+    }
+    
+    // Eliminar usuario
+    public function eliminarUsuario($id)
+    {
+        $redirect = $this->verificarAdmin();
+        if ($redirect) return $redirect;
+        
+        // No permitir eliminar el propio usuario
+        if ($id == session()->get('usuario_id')) {
+            return redirect()->to('/admin/usuarios')->with('error', 'No puedes eliminar tu propio usuario');
+        }
+        
+        if ($this->usuarioModel->delete($id)) {
+            return redirect()->to('/admin/usuarios')->with('success', 'Usuario eliminado correctamente');
+        } else {
+            return redirect()->to('/admin/usuarios')->with('error', 'Error al eliminar el usuario');
+        }
+    }
+    
+    // Cambiar estado del usuario
+    public function cambiarEstado($id)
+    {
+        $redirect = $this->verificarAdmin();
+        if ($redirect) return $redirect;
+        
+        $usuario = $this->usuarioModel->find($id);
+        
+        if (!$usuario) {
+            return redirect()->to('/admin/usuarios')->with('error', 'Usuario no encontrado');
+        }
+        
+        // No permitir desactivar el propio usuario
+        if ($id == session()->get('usuario_id')) {
+            return redirect()->to('/admin/usuarios')->with('error', 'No puedes desactivar tu propio usuario');
+        }
+        
+        $nuevoEstado = $usuario['activo'] == 1 ? 0 : 1;
+        
+        if ($this->usuarioModel->update($id, ['activo' => $nuevoEstado])) {
+            $mensaje = $nuevoEstado == 1 ? 'Usuario activado' : 'Usuario desactivado';
+            return redirect()->to('/admin/usuarios')->with('success', $mensaje);
+        } else {
+            return redirect()->to('/admin/usuarios')->with('error', 'Error al cambiar el estado');
+        }
+    }
+}

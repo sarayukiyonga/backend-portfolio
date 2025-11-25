@@ -1,0 +1,154 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Models\UsuarioModel;
+use CodeIgniter\Controller;
+
+class Auth extends Controller
+{
+    public function __construct()
+    {
+        helper(['form', 'url']);
+    }
+    
+    // Mostrar formulario de login
+    public function login()
+    {
+        // Si ya está logueado, redirigir al dashboard
+        if (session()->has('usuario_id')) {
+            return redirect()->to('/dashboard');
+        }
+        
+        return view('auth/login');
+    }
+    
+    // Procesar login
+    public function loginProcesar()
+    {
+        $validation = \Config\Services::validation();
+        
+        $validation->setRules([
+            'email' => 'required|valid_email',
+            'password' => 'required'
+        ], [
+            'email' => [
+                'required' => 'El email es requerido',
+                'valid_email' => 'Debe ingresar un email válido'
+            ],
+            'password' => [
+                'required' => 'La contraseña es requerida'
+            ]
+        ]);
+        
+        if (!$validation->withRequest($this->request)->run()) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        }
+        
+        $email = $this->request->getPost('email');
+        $password = $this->request->getPost('password');
+        
+        $usuarioModel = new UsuarioModel();
+        $usuario = $usuarioModel->verificarCredenciales($email, $password);
+        
+        if ($usuario) {
+            // Crear sesión
+            $sessionData = [
+                'usuario_id' => $usuario['id'],
+                'usuario_nombre' => $usuario['nombre'],
+                'usuario_email' => $usuario['email'],
+                'usuario_rol' => $usuario['rol_nombre'],
+                'usuario_rol_id' => $usuario['rol_id'],
+                'isLoggedIn' => true
+            ];
+            
+            session()->set($sessionData);
+            
+            // Redirigir según el rol
+            if ($usuario['rol_nombre'] == 'admin') {
+                return redirect()->to('/admin/dashboard')->with('success', 'Bienvenido ' . $usuario['nombre']);
+            } else {
+                return redirect()->to('/visitante/dashboard')->with('success', 'Bienvenido ' . $usuario['nombre']);
+            }
+        } else {
+            // Verificar si el usuario existe pero está inactivo
+            $usuarioInactivo = $usuarioModel->getUsuarioPorEmail($email);
+            
+            if ($usuarioInactivo && password_verify($password, $usuarioInactivo['password'])) {
+                if ($usuarioInactivo['activo'] == 0) {
+                    return redirect()->back()->withInput()->with('error', 'Tu cuenta está pendiente de aprobación por un administrador.');
+                }
+            }
+            
+            return redirect()->back()->withInput()->with('error', 'Credenciales incorrectas');
+        }
+    }
+    
+    // Cerrar sesión
+    public function logout()
+    {
+        session()->destroy();
+        return redirect()->to('/auth/login')->with('success', 'Sesión cerrada correctamente');
+    }
+    
+    // Mostrar formulario de registro
+    public function registro()
+    {
+        if (session()->has('usuario_id')) {
+            return redirect()->to('/dashboard');
+        }
+        
+        return view('auth/registro');
+    }
+    
+    // Procesar registro
+    public function registroProcesar()
+    {
+        $validation = \Config\Services::validation();
+        
+        $validation->setRules([
+            'nombre' => 'required|min_length[3]|max_length[100]',
+            'email' => 'required|valid_email|is_unique[usuarios.email]',
+            'password' => 'required|min_length[6]',
+            'password_confirm' => 'required|matches[password]'
+        ], [
+            'nombre' => [
+                'required' => 'El nombre es requerido',
+                'min_length' => 'El nombre debe tener al menos 3 caracteres'
+            ],
+            'email' => [
+                'required' => 'El email es requerido',
+                'valid_email' => 'Debe ingresar un email válido',
+                'is_unique' => 'Este email ya está registrado'
+            ],
+            'password' => [
+                'required' => 'La contraseña es requerida',
+                'min_length' => 'La contraseña debe tener al menos 6 caracteres'
+            ],
+            'password_confirm' => [
+                'required' => 'Debe confirmar la contraseña',
+                'matches' => 'Las contraseñas no coinciden'
+            ]
+        ]);
+        
+        if (!$validation->withRequest($this->request)->run()) {
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+        }
+        
+        $usuarioModel = new UsuarioModel();
+        
+        $data = [
+            'nombre' => $this->request->getPost('nombre'),
+            'email' => $this->request->getPost('email'),
+            'password' => $this->request->getPost('password'),
+            'rol_id' => 2, // Por defecto es visitante
+            'activo' => 0  // CAMBIO: Desactivado por defecto, necesita aprobación
+        ];
+        
+        if ($usuarioModel->insert($data)) {
+            return redirect()->to('/auth/login')->with('success', 'Registro exitoso. Tu cuenta está pendiente de aprobación por un administrador. Te notificaremos cuando sea activada.');
+        } else {
+            return redirect()->back()->withInput()->with('error', 'Error al registrar el usuario');
+        }
+    }
+}
