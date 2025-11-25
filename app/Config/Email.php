@@ -17,7 +17,7 @@ class Email extends BaseConfig
     // Configuración SMTP para CDMON
     public string $SMTPHost = 'smtp.saraymartinez.com';
     public string $SMTPUser = 'info@saraymartinez.com';
-    public string $SMTPPass = '4FamilyM@il';
+    public string $SMTPPass = '';
     public int $SMTPPort = 465;
     public int $SMTPTimeout = 60;  // Aumentado para servidores lentos
     public bool $SMTPKeepAlive = false;
