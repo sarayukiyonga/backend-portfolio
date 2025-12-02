@@ -5,18 +5,21 @@ namespace App\Controllers;
 use App\Models\UsuarioModel;
 use App\Models\RolModel;
 use App\Models\ProyectoModel;
+use App\Models\ContactoModel;
 
 class Admin extends BaseController
 {
     protected $usuarioModel;
     protected $rolModel;
     protected $proyectoModel;
+    protected $contactoModel;
     
     public function __construct()
     {
         $this->usuarioModel = new UsuarioModel();
         $this->rolModel = new RolModel();
         $this->proyectoModel = new ProyectoModel();
+        $this->contactoModel = new ContactoModel();
         helper(['form', 'url']);
     }
     
@@ -73,7 +76,7 @@ class Admin extends BaseController
             'titulo' => 'Panel de Administración',
             'usuarios' => $usuarios,
             'pendientes' => count($pendientes),
-            
+            'mensajes_sin_leer' => $this->contactoModel->contarNoLeidos(),
             // Estadísticas de proyectos
             'totalProyectos' => count($proyectos),
             'proyectosActivos' => count($proyectosActivos),

@@ -307,6 +307,12 @@
                 <a href="<?= site_url('admin/usuariosPendientes') ?>" style="color: #856404; text-decoration: underline; font-weight: bold;">Ver ahora</a>
             </div>
         <?php endif; ?>
+        <?php if (isset($mensajes_sin_leer) && $mensajes_sin_leer > 0): ?>
+    <div class="alert alert-warning">
+        ✉️ <strong>¡Tienes mensajes nuevos!</strong> Hay <strong><?= $mensajes_sin_leer ?></strong> mensaje(s) sin leer en el formulario de contacto.
+        <a href="<?= site_url('admin/contactos') ?>" style="color: #856404; text-decoration: underline; font-weight: bold;">Ver ahora</a>
+    </div>
+<?php endif; ?>
          <!-- MENÚ DE ADMINISTRACIÓN -->
         <h2 class="section-title">⚙️ Menú de Administración</h2>
         <div class="menu-links">
@@ -317,7 +323,18 @@
                     <p>Usuarios esperando aprobación</p>
                 </a>
             <?php endif; ?>
-            
+              <?php if (isset($mensajes_sin_leer) && $mensajes_sin_leer > 0): ?>
+    <a href="<?= site_url('admin/contactos') ?>" class="menu-link menu-link-pendientes">
+        <span class="notification-badge"><?= $mensajes_sin_leer ?></span>
+        <h4>✉️ Mensajes de Contacto</h4>
+        <p>Mensajes sin leer del formulario</p>
+    </a>
+<?php else: ?>
+    <a href="<?= site_url('admin/contactos') ?>" class="menu-link">
+        <h4>✉️ Mensajes de Contacto</h4>
+        <p>Ver mensajes del formulario de contacto</p>
+    </a>
+<?php endif; ?>
             <a href="<?= site_url('proyectos') ?>" class="menu-link menu-link-proyectos">
                 <h4>🎨 Proyectos</h4>
                 <p>Gestionar portfolio de proyectos</p>
@@ -326,7 +343,6 @@
                 <h4>📁 Documentos</h4>
                 <p>Gestionar Recursos: documentos, PDFs, currículum y material exclusivo</p>
             </a>
-            
             <a href="<?= site_url('admin/usuarios') ?>" class="menu-link">
                 <h4>👥 Gestión de Usuarios</h4>
                 <p>Ver, crear, editar y eliminar usuarios</p>
@@ -339,6 +355,7 @@
                 <h4>👤 Mi Perfil</h4>
                 <p>Ver y editar mi información personal</p>
             </a>
+           
         </div>
 
          <div class="separador"></div>

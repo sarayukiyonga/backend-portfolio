@@ -311,7 +311,7 @@
                 <a href="<?= site_url('/') ?>">Inicio</a>
                 <a href="<?= site_url('proyectos/publico') ?>">Proyectos</a>
                 <a href="<?= site_url('welcome/about') ?>">Acerca de</a>
-                <a href="<?= site_url('welcome/contact') ?>">Contacto</a>
+                <a href="<?= site_url('contacto') ?>">Contacto</a>
                 <?php if (session()->has('usuario_id')): ?>
                     <a href="<?= site_url(session()->get('usuario_rol') == 'admin' ? 'admin/dashboard' : 'visitante/dashboard') ?>" class="btn-login">
                         Dashboard
@@ -333,7 +333,7 @@
             <a href="<?= site_url('proyectos/publico') ?>" class="btn-hero btn-primary">
                 Ver Proyectos
             </a>
-            <a href="<?= site_url('welcome/contact') ?>" class="btn-hero btn-secondary">
+            <a href="<?= site_url('contacto') ?>" class="btn-hero btn-secondary">
                 Contactar
             </a>
         </div>
@@ -398,7 +398,7 @@
     <section class="cta-section">
         <h2>¿Tienes un proyecto en mente?</h2>
         <p>Trabajemos juntos para hacerlo realidad</p>
-        <a href="<?= site_url('welcome/contact') ?>" class="btn-hero btn-primary">
+        <a href="<?= site_url('contacto') ?>" class="btn-hero btn-primary">
             Contactar Ahora
         </a>
     </section>

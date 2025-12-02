@@ -356,7 +356,7 @@
                 <a href="<?= site_url('/') ?>">Inicio</a>
                 <a href="<?= site_url('proyectos/publico') ?>">Proyectos</a>
                 <a href="<?= site_url('welcome/about') ?>">Acerca de</a>
-                <a href="<?= site_url('welcome/contact') ?>">Contacto</a>
+                <a href="<?= site_url('contacto') ?>">Contacto</a>
                 <?php if (session()->has('usuario_id')): ?>
                     <a href="<?= site_url(session()->get('usuario_rol') == 'admin' ? 'admin/dashboard' : 'visitante/dashboard') ?>" class="btn-login">
                         Dashboard

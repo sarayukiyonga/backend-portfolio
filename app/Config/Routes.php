@@ -76,6 +76,24 @@ $routes->group('proyectos', function($routes) {
     $routes->post('subirImagenTinymce', 'Proyectos::subirImagenTinymce');
 });
 
+// ==============================================
+// CONTACTO - PÚBLICO Y ADMIN
+// ==============================================
+
+// Formulario de contacto (vista pública)
+$routes->get('contacto', 'Contacto::formulario');
+
+// API: Enviar mensaje de contacto (POST público)
+$routes->post('api/contacto/enviar', 'Contacto::enviar');
+
+// Admin: Gestión de contactos
+$routes->group('admin/contactos', function($routes) {
+    $routes->get('/', 'Contacto::index');
+    $routes->get('ver/(:num)', 'Contacto::ver/$1');
+    $routes->get('eliminar/(:num)', 'Contacto::eliminar/$1');
+    $routes->post('marcarRespondido/(:num)', 'Contacto::marcarRespondido/$1');
+});
+
 // ============================================
 // RECURSOS - Sin filtros (verificación en controlador)
 // ============================================
