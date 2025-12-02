@@ -348,27 +348,6 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="logo">Saray Martínez</div>
-            <div class="nav-links">
-                <a href="<?= site_url('/') ?>">Inicio</a>
-                <a href="<?= site_url('proyectos/publico') ?>">Proyectos</a>
-                <a href="<?= site_url('welcome/about') ?>">Acerca de</a>
-                <a href="<?= site_url('contacto') ?>">Contacto</a>
-                <?php if (session()->has('usuario_id')): ?>
-                    <a href="<?= site_url(session()->get('usuario_rol') == 'admin' ? 'admin/dashboard' : 'visitante/dashboard') ?>" class="btn-login">
-                        Dashboard
-                    </a>
-                <?php else: ?>
-                    <a href="<?= site_url('auth/login') ?>" class="btn-login">
-                        Iniciar Sesión
-                    </a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </nav>
     <nav class="navbar">
         <h1>🎨 Gestión de Proyectos</h1>
         <div class="navbar-actions">
