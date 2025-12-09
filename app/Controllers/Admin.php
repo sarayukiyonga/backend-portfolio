@@ -257,7 +257,9 @@ class Admin extends BaseController
         $redirect = $this->verificarAdmin();
         if ($redirect) return $redirect;
         
-        $usuario = $this->usuarioModel->getUsuarioCompleto($id);
+
+            $usuario = $this->usuarioModel->getUsuarioConRol($id);
+
         
         if (!$usuario) {
             return redirect()->to('/admin/usuarios')->with('error', 'Usuario no encontrado.');

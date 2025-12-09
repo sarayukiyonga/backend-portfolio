@@ -14,13 +14,18 @@
 # ENVIRONMENT
 #--------------------------------------------------------------------
 
-CI_ENVIRONMENT = development
+CI_ENVIRONMENT = production
+
+
+# IMPORTANTE: HTTPS con S
+app.baseURL = 'https://test.saraymartinez.com/'
+app.indexPage = ''
+app.appTimezone = 'Europe/Madrid'
+app.defaultLocale = 'es'
 
 #--------------------------------------------------------------------
 # APP
 #--------------------------------------------------------------------
-
-app.baseURL = 'http://test.saraymartinez.com/'
 # If you have trouble with `.`, you could also use `_`.
 # app_baseURL = ''
 # app.forceGlobalSecureRequests = false
@@ -31,9 +36,9 @@ app.baseURL = 'http://test.saraymartinez.com/'
 #--------------------------------------------------------------------
 
  database.default.hostname = localhost
- database.default.database = portfolio-ux
+ database.default.database = portfolioux
  database.default.username = saraym5026
- database.default.password = 4F@milyKokis
+ database.default.password = (Q8ebq1z
  database.default.DBDriver = MySQLi
  database.default.DBPrefix =
  database.default.port = 3306
@@ -59,14 +64,19 @@ encryption.key = hex2bin:c93a00646a8cbe174fd5c9290a21bfec7a6fb948205d2c383c31328
 # SESSION
 #--------------------------------------------------------------------
 
-# session.driver = 'CodeIgniter\Session\Handlers\FileHandler'
-# session.savePath = null
+session.driver = 'CodeIgniter\Session\Handlers\FileHandler'
+session.cookieName = 'ci_session'
+session.expiration = 7200
+session.savePath = NULL
+session.matchIP = false
+session.timeToUpdate = 300
+session.regenerateDestroy = false
 
 #--------------------------------------------------------------------
 # LOGGER
 #--------------------------------------------------------------------
 
-# logger.threshold = 4
+logger.threshold = 4
 
 #--------------------------------------------------------------------
 # EMAIL - CDMON

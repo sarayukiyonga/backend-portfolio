@@ -1,0 +1,50 @@
+# Disable directory browsing
+Options All -Indexes
+
+# Allow access to assets
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|pdf|zip|webp)$">
+    Require all granted
+</FilesMatch>
+
+# ----------------------------------------------------------------------
+# Rewrite engine
+# ----------------------------------------------------------------------
+
+# Turning on the rewrite engine is necessary for the following rules and features.
+# FollowSymLinks must be enabled for this to work.
+# CodeIgniter 4 Routing
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # Redirect to HTTPS
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    
+    # Remove index.php from URLs
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php/$1 [L,QSA]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+	# If we don't have mod_rewrite installed, all 404's
+	# can be sent to index.php, and everything works as normal.
+	ErrorDocument 404 index.php
+</IfModule>
+
+# Protect sensitive files
+<FilesMatch "^\.env$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^(composer\.(json|lock)|phpunit\.xml)$">
+    Require all denied
+</FilesMatch>
+
+# Security headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>

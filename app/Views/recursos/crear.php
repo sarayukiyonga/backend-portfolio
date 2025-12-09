@@ -1,256 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $titulo ?></title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-        }
-        
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .navbar h1 {
-            font-size: 24px;
-        }
-        
-        .btn-back {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            transition: background 0.3s;
-        }
-        
-        .btn-back:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        .container {
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        
-        .form-container {
-            background: white;
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .form-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .form-header h2 {
-            font-size: 28px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .form-header p {
-            color: #666;
-        }
-        
-        .form-group {
-            margin-bottom: 25px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .form-label.required::after {
-            content: ' *';
-            color: #dc3545;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 5px;
-            font-size: 15px;
-            transition: border-color 0.3s;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        textarea.form-control {
-            resize: vertical;
-            min-height: 100px;
-        }
-        
-        .form-help {
-            font-size: 13px;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .file-upload {
-            border: 2px dashed #e0e0e0;
-            border-radius: 5px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .file-upload:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
-        }
-        
-        .file-upload-icon {
-            font-size: 50px;
-            margin-bottom: 15px;
-        }
-        
-        .file-upload input[type="file"] {
-            display: none;
-        }
-        
-        .file-name {
-            margin-top: 10px;
-            font-weight: 600;
-            color: #28a745;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .checkbox-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-        
-        .info-box {
-            background: #e7f3ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 25px;
-        }
-        
-        .info-box h4 {
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-        
-        .info-box ul {
-            margin-left: 20px;
-        }
-        
-        .info-box li {
-            margin-bottom: 5px;
-            color: #555;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: flex-end;
-            margin-top: 30px;
-        }
-        
-        .btn {
-            padding: 12px 30px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .btn-submit {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .btn-submit:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-        
-        .btn-cancel {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn-cancel:hover {
-            background: #5a6268;
-        }
-        
-        .alert {
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .alert-error ul {
-            margin-left: 20px;
-            margin-top: 10px;
-        }
-        
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <?php include(APPPATH . 'Views/components/head.php'); ?>
 </head>
 <body>
-    <nav class="navbar">
-        <h1>➕ Subir Nuevo Recurso</h1>
-        <a href="<?= site_url('recursos/admin') ?>" class="btn-back">
+    <?php include(APPPATH . 'Views/components/sidebar.php'); ?>
+   <div class="main-content">
+       <?php include(APPPATH . 'Views/components/navbar.php'); ?>
+   
+    <div class="container">
+                <div class="navbar-actions">
+            <a href="<?= site_url('recursos/admin') ?>" class="btn-back">
             ← Volver a Gestión
         </a>
-    </nav>
-    
-    <div class="container">
+        </div>
+
         <div class="form-container">
             <div class="form-header">
                 <h2>Subir Nuevo Recurso</h2>
@@ -406,5 +170,7 @@
             }
         }
     </script>
+    <?php include(APPPATH . 'Views/components/sidebar_js.php'); ?>
 </body>
 </html>
+

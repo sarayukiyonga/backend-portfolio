@@ -1,332 +1,11 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio - Inicio</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #ffffff;
-            color: #333;
-        }
-        
-        /* Header/Navbar */
-        .navbar {
-            background: rgba(255, 255, 255, 0.98);
-            padding: 20px 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        
-        .navbar-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
-        
-        .nav-links a {
-            text-decoration: none;
-            color: #666;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        .nav-links a:hover {
-            color: #667eea;
-        }
-        
-        .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 10px 25px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 120px 30px;
-            text-align: center;
-        }
-        
-        .hero h1 {
-            font-size: 56px;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-        
-        .hero p {
-            font-size: 22px;
-            margin-bottom: 40px;
-            opacity: 0.95;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .hero-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        
-        .btn-hero {
-            padding: 15px 40px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 18px;
-            transition: all 0.3s;
-            display: inline-block;
-        }
-        
-        .btn-primary {
-            background: white;
-            color: #667eea;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-        
-        .btn-secondary {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 2px solid white;
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        
-        /* Sección Proyectos Destacados */
-        .proyectos-section {
-            max-width: 1400px;
-            margin: 80px auto;
-            padding: 0 30px;
-        }
-        
-        .section-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        
-        .section-header h2 {
-            font-size: 42px;
-            margin-bottom: 15px;
-            color: #333;
-        }
-        
-        .section-header p {
-            font-size: 18px;
-            color: #666;
-        }
-        
-        .proyectos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 40px;
-            margin-bottom: 50px;
-        }
-        
-        .proyecto-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            transition: transform 0.3s, box-shadow 0.3s;
-            cursor: pointer;
-        }
-        
-        .proyecto-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-        }
-        
-        .proyecto-imagen {
-            width: 100%;
-            height: 280px;
-            object-fit: cover;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        }
-        
-        .proyecto-contenido {
-            padding: 25px;
-        }
-        
-        .proyecto-nombre {
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .proyecto-descripcion {
-            color: #666;
-            font-size: 15px;
-            line-height: 1.6;
-            margin-bottom: 15px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        
-        .proyecto-meta {
-            display: flex;
-            gap: 15px;
-            font-size: 13px;
-            color: #999;
-            margin-bottom: 15px;
-        }
-        
-        .ver-mas-section {
-            text-align: center;
-        }
-        
-        .btn-ver-todos {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 50px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 18px;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        
-        .btn-ver-todos:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-        
-        /* Sección CTA */
-        .cta-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 80px 30px;
-            text-align: center;
-            margin-top: 100px;
-        }
-        
-        .cta-section h2 {
-            font-size: 42px;
-            margin-bottom: 20px;
-        }
-        
-        .cta-section p {
-            font-size: 20px;
-            margin-bottom: 40px;
-            opacity: 0.95;
-        }
-        
-        /* Footer */
-        .footer {
-            background: #2d3748;
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
-        }
-        
-        .footer p {
-            opacity: 0.8;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            color: #999;
-        }
-        
-        .empty-state-icon {
-            font-size: 80px;
-            margin-bottom: 20px;
-        }
-        
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 36px;
-            }
-            
-            .hero p {
-                font-size: 18px;
-            }
-            
-            .proyectos-grid {
-                grid-template-columns: 1fr;
-                gap: 30px;
-            }
-            
-            .nav-links {
-                display: none;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="logo">Saray Martínez</div>
-            <div class="nav-links">
-                <a href="<?= site_url('/') ?>">Inicio</a>
-                <a href="<?= site_url('proyectos/publico') ?>">Proyectos</a>
-                <a href="<?= site_url('welcome/about') ?>">Acerca de</a>
-                <a href="<?= site_url('contacto') ?>">Contacto</a>
-                <?php if (session()->has('usuario_id')): ?>
-                    <a href="<?= site_url(session()->get('usuario_rol') == 'admin' ? 'admin/dashboard' : 'visitante/dashboard') ?>" class="btn-login">
-                        Dashboard
-                    </a>
-                <?php else: ?>
-                    <a href="<?= site_url('auth/login') ?>" class="btn-login">
-                        Iniciar Sesión
-                    </a>
-                <?php endif; ?>
-            </div>
-        </div>
-    </nav>
-    
+<?php
+$pageTitle = 'Inicio';
+$pageDescription = 'Diseñadora UI/UX especializada en crear interfaces intuitivas y visualmente atractivas que combinan usabilidad, estética y coherencia técnica.';
+$currentPage = 'home';
+include 'includes/header.php';
+?>
     <!-- Hero Section -->
-    <section class="hero">
+    <!-- <section class="hero">
         <h1>Bienvenido a Mi Portfolio</h1>
         <p>Descubre proyectos creativos, innovadores y profesionales que demuestran nuestra experiencia y pasión por el diseño</p>
         <div class="hero-buttons">
@@ -337,13 +16,48 @@
                 Contactar
             </a>
         </div>
-    </section>
+    </section> -->
+
+    <section id="presentation" class="hero">
+    <h1 class="animtext one">¡Hola! Soy Saray,<br>
+    <span class="animtext two"><em>Diseñadora UX/UI.</em></span></h1>
+    <p class="animtext three">Creo interfaces intuitivas y visualmente atractivas</p>
+    <p class="animtext3 four">que combinan usabilidad, estética y coherencia técnica.</p>
+    <!-- <section id="contact"><p>Contacto</p><a class="whatsapp" href="https://wa.me/+34646220816" target="_blank"><i class="fab fa-whatsapp"></i></a> <a class="phone" href="tel:+34646220816"><i class="fas fa-phone"></i></a> <a href="mailto:info@saraymartinez.com"><i class="fas fa-envelope"></i></a></section> -->
+    <div class="hero-buttons">
+            <a href="<?= site_url('#proyectos') ?>" class="btn-hero btn-primary">
+                Ver Proyectos
+            </a>
+            <a href="<?= site_url('contacto') ?>" class="btn-hero btn-secondary">
+                Contactar
+            </a>
+        </div>
+    <div class="anime">
+    <i class="icon-code fas fa-code a"></i>
+    <i class="icon-code fab fa-css3 b"></i>
+    <i class="icon-code fab fa-html5 c"></i>
+    <i class="icon-code fab fa-figma d"></i>
+    <i class="icon-code fab fa-wordpress e"></i>
+    <i class="icon-code fab fa-elementor f"></i>
+    <i class="icon-code fab fa-mailchimp g"></i>
+    <i class="icon-code fab fa-invision h"></i>
+    </div>
+ </section>
     
     <!-- Proyectos Destacados -->
-    <section class="proyectos-section">
+    <section id="proyectos" class="proyectos-section">
         <div class="section-header">
-            <h2>Proyectos Destacados</h2>
-            <p>Una selección de nuestros trabajos más recientes</p>
+            <h2 class="titulo">Proyectos Destacados</h2>
+            <p>Puedes ver una selección de mis trabajos, algunos de mis últimos trabajos están bajo un contrato de confidencialidad. Si deseas verlos debes solicitarme acceso al area privada rellenando el formulario de registro.</p>
+            <?php if (session()->has('usuario_id')): ?>
+                    <a href="<?= site_url(session()->get('usuario_rol') == 'admin' ? 'admin/dashboard' : 'visitante/dashboard') ?>" class="btn-login">
+                        Dashboard
+                    </a>
+                <?php else: ?>
+                    <a href="<?= site_url('auth/login') ?>" class="btn-login">
+                        Iniciar Sesión
+                    </a>
+                <?php endif; ?>
         </div>
         
         <?php if (!empty($proyectosDestacados)): ?>
@@ -357,7 +71,7 @@
                         <?php else: ?>
                             <div class="proyecto-imagen"></div>
                         <?php endif; ?>
-                        
+<!--                         
                         <div class="proyecto-contenido">
                             <h3 class="proyecto-nombre">
                                 <?= esc($proyecto['nombre']) ?>
@@ -375,13 +89,13 @@
                                     <span>📅 <?= $proyecto['anio'] ?></span>
                                 <?php endif; ?>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 <?php endforeach; ?>
             </div>
             
             <div class="ver-mas-section">
-                <a href="<?= site_url('proyectos/publico') ?>" class="btn-ver-todos">
+                <a href="<?= site_url('proyectos/publico') ?>" class="btn-primary">
                     Ver Todos los Proyectos →
                 </a>
             </div>
@@ -393,19 +107,50 @@
             </div>
         <?php endif; ?>
     </section>
-    
+    <!-- Sobre mi Section -->
+     
+<section id="about" class="sections">
+            <h2 class="titulo">Sobre mi</h2>
+        <div class="contenido">
+<p class="textsection">Soy una diseñadora UI/UX apasionada por crear experiencias digitales centradas en las personas. Mi formación en diseño gráfico y fotografía me da una sensibilidad especial para cuidar cada detalle visual, mientras que mis conocimientos de HTML y CSS me ayudan a conectar el diseño con la parte técnica.
+</p><p>Creo en el diseño como herramienta para hacer la vida más fácil: interfaces claras, accesibles y atractivas que unen estética y funcionalidad. Me gusta trabajar en proyectos donde pueda aportar creatividad, empatía y precisión, siempre con el objetivo de ofrecer soluciones digitales útiles, bellas y memorables.
+</p>
+
+<hr>
+ <h2 class="titulo">Referencias</h2>
+
+        <div id="references">
+    <div class="testimonios">
+    <p><em>Joanna Grillo</em><br/><small>Trabajamos juntas en Dildosassorted</small></p>
+        <p><q>Durante los cuatro años que trabajamos juntas con Saray, siempre me impresionó con su creatividad, atención al detalle y capacidad para cumplir con los plazos. Sus contribuciones fueron invaluables para nuestro equipo y no tengo ninguna duda de que se destacarán en cualquier proyecto futuro.</q></p>
+    </div>
+
+    <div class="testimonios">
+    <p><em>Manuel Ruiz</em><br/><small>Trabajamos juntos en Envirtual</small></p>
+    <p><q>Gran creativa , responsable y muy ordenada y en los proyectos. Una verdadera profesional en el sector del diseño gráfico y en todo lo que se proponga.</q></p>
+    </div>
+
+    <div class="testimonios">
+    <p><em>José Manuel Villas</em><br/><small>Trabajamos juntos en Envirtual</small></p>
+    <p><q>Trabajadora, detallista, comunicativa y compartidora de conocimientos además de amiga.</q></p>
+    </div>
+        </div>
+
+
+        </div>
+</section>
     <!-- CTA Section -->
-    <section class="cta-section">
+    <!-- <section class="cta-section">
         <h2>¿Tienes un proyecto en mente?</h2>
         <p>Trabajemos juntos para hacerlo realidad</p>
         <a href="<?= site_url('contacto') ?>" class="btn-hero btn-primary">
             Contactar Ahora
         </a>
-    </section>
+    </section> -->
     
     <!-- Footer -->
-    <footer class="footer">
-        <p>&copy; <?= date('Y') ?> Mi Portfolio. Todos los derechos reservados.</p>
-    </footer>
-</body>
-</html>
+
+<?php 
+$additionalScripts = '<script src="js/app.js"></script>';
+include 'includes/footer.php'; 
+?>
