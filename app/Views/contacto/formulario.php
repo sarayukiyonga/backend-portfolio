@@ -6,8 +6,7 @@ include 'includes/header.php';
 ?>
 
   <div class="section-header">
-        <h2>Contacto</h2>
-        <p>Rellena este formulario y me pondré en contacto contigo lo antes posible.</p>
+
         </div>
     <div class="container">
         <!-- <a href="<?= site_url('/') ?>" class="back-link">Volver al inicio</a> -->
