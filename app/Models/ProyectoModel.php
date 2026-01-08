@@ -49,7 +49,9 @@ class ProyectoModel extends Model
      */
     public function listarTodosProyectos()
     {
-        return $this->orderBy('created_at', 'DESC')->findAll();
+        return $this->orderBy('orden', 'ASC')
+                    ->orderBy('created_at', 'DESC')
+                    ->findAll();
     }
     
     /**
@@ -84,6 +86,7 @@ class ProyectoModel extends Model
     public function listarPorEstado($estado)
     {
         return $this->where('estado', $estado)
+                    ->orderBy('orden', 'ASC')
                     ->orderBy('created_at', 'DESC')
                     ->findAll();
     }
@@ -94,8 +97,29 @@ class ProyectoModel extends Model
     public function listarPorVisibilidad($visibilidad)
     {
         return $this->where('visibilidad', $visibilidad)
+                    ->orderBy('orden', 'ASC')
                     ->orderBy('created_at', 'DESC')
                     ->findAll();
+    }
+    
+    /**
+     * Actualizar orden de proyectos
+     */
+    public function actualizarOrden($ordenes)
+    {
+        foreach ($ordenes as $proyectoId => $orden) {
+            $this->update($proyectoId, ['orden' => (int)$orden]);
+        }
+        return true;
+    }
+    
+    /**
+     * Obtener el siguiente orden disponible
+     */
+    public function getSiguienteOrden()
+    {
+        $result = $this->selectMax('orden')->first();
+        return ($result['orden'] ?? 0) + 1;
     }
     
     /**

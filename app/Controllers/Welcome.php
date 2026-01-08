@@ -22,6 +22,7 @@ class Welcome extends BaseController
         $proyectosDestacados = $this->proyectoModel
             ->where('estado', 'publicado')
             ->where('visibilidad', 'publico')
+            ->orderBy('orden', 'ASC')
             ->orderBy('created_at', 'DESC')
             ->limit(6)
             ->findAll();

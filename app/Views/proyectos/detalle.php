@@ -55,7 +55,7 @@
         <!-- Caso de Estudio -->
         <?php if ($proyecto['caso_estudio']): ?>
             <div class="seccion-content">
-                <h2 class="seccion-title">📄 Caso de Estudio</h2>
+                <h2 class="seccion-title">Caso de Estudio</h2>
                 <div class="caso-estudio-content">
                     <?= $proyecto['caso_estudio'] ?>
                 </div>
@@ -66,7 +66,7 @@
         <?php if (!empty($proyecto['secciones'])): ?>
             <?php foreach ($proyecto['secciones'] as $index => $seccion): ?>
                 <div class="seccion-content">
-                    <h2 class="seccion-title">Sección <?= $index + 1 ?></h2>
+                    <h2 class="seccion-title"><?= $seccion['titulo'] ?></h2>
                     
                     <div class="contenido-seccion <?= empty($seccion['media_url']) ? 'solo-texto' : '' ?>">
                         <?php if ($seccion['media_url']): ?>

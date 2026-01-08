@@ -102,9 +102,15 @@
         
         <!-- Grid de Proyectos -->
         <?php if (!empty($proyectos)): ?>
-            <div class="proyectos-grid">
+            <div style="margin-bottom: 20px; padding: 15px; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #2196F3;">
+                <strong>📋 Ordenar Proyectos:</strong> Arrastra y suelta las tarjetas para cambiar el orden. Los cambios se guardan automáticamente.
+            </div>
+            <div class="proyectos-grid" id="proyectos-container">
                 <?php foreach ($proyectos as $proyecto): ?>
-                    <div class="proyecto-card">
+                    <div class="proyecto-card sortable-item" data-proyecto-id="<?= $proyecto['id'] ?>" style="cursor: grab; position: relative;">
+                        <div class="drag-handle" style="position: absolute; top: 10px; right: 10px; background: rgba(33, 150, 243, 0.8); color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; z-index: 10; cursor: grab; user-select: none;">
+                            ⋮⋮ Arrastrar
+                        </div>
                         <?php if ($proyecto['imagen_principal']): ?>
                             <img src="<?= base_url('uploads/proyectos/' . $proyecto['imagen_principal']) ?>" 
                                  alt="<?= esc($proyecto['nombre']) ?>" 
@@ -172,5 +178,102 @@
     </div>
     </div>
     <?php include(APPPATH . 'Views/components/sidebar_js.php'); ?>
+    
+    <!-- SortableJS para drag and drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('proyectos-container');
+            if (!container) return;
+            
+            let sortable = Sortable.create(container, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                onEnd: function(evt) {
+                    // Obtener el nuevo orden
+                    const items = container.querySelectorAll('.proyecto-card');
+                    const ordenes = {};
+                    
+                    items.forEach((item, index) => {
+                        const proyectoId = item.getAttribute('data-proyecto-id');
+                        ordenes[proyectoId] = index + 1;
+                    });
+                    
+                    // Preparar datos como URLSearchParams (más compatible con CodeIgniter)
+                    const params = new URLSearchParams();
+                    params.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
+                    
+                    // Agregar cada orden
+                    Object.keys(ordenes).forEach(function(proyectoId) {
+                        params.append('ordenes[' + proyectoId + ']', ordenes[proyectoId]);
+                    });
+                    
+                    // Enviar al servidor
+                    fetch('<?= site_url('proyectos/actualizarOrden') ?>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: params.toString()
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Mostrar mensaje de éxito temporal
+                            const mensaje = document.createElement('div');
+                            mensaje.className = 'alert alert-success';
+                            mensaje.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; padding: 15px 20px; background: #4CAF50; color: white; border-radius: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);';
+                            mensaje.textContent = '✅ Orden actualizado correctamente';
+                            document.body.appendChild(mensaje);
+                            
+                            setTimeout(() => {
+                                mensaje.style.opacity = '0';
+                                mensaje.style.transition = 'opacity 0.5s';
+                                setTimeout(() => mensaje.remove(), 500);
+                            }, 2000);
+                        } else {
+                            alert('Error al actualizar el orden: ' + (data.message || 'Error desconocido'));
+                            // Recargar la página para restaurar el orden anterior
+                            location.reload();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error de conexión al actualizar el orden');
+                        location.reload();
+                    });
+                }
+            });
+        });
+    </script>
+    
+    <style>
+        .sortable-ghost {
+            opacity: 0.4;
+            background: #f0f0f0;
+        }
+        .sortable-chosen {
+            cursor: grabbing !important;
+        }
+        .sortable-drag {
+            opacity: 0.8;
+            transform: rotate(2deg);
+        }
+        .proyecto-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+        .proyecto-card:active {
+            cursor: grabbing;
+        }
+        .drag-handle:hover {
+            background: rgba(33, 150, 243, 1) !important;
+        }
+    </style>
 </body>
 </html>

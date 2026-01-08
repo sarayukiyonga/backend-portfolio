@@ -17,9 +17,24 @@
             </div>
         <?php endif; ?>
         
-        <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-error">
-                <?= session()->getFlashdata('error') ?>
+        <?php 
+        $error = session()->getFlashdata('error');
+        if ($error): ?>
+            <div class="alert alert-error" style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+                <strong>⚠️ Error:</strong> <?= esc($error) ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php 
+        $errors = session()->getFlashdata('errors');
+        if ($errors && is_array($errors)): ?>
+            <div class="alert alert-error" style="background-color: #f8d7da; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+                <strong>⚠️ Errores:</strong>
+                <ul style="margin: 5px 0 0 20px;">
+                    <?php foreach ($errors as $err): ?>
+                        <li><?= esc($err) ?></li>
+                    <?php endforeach; ?>
+                </ul>
             </div>
         <?php endif; ?>
         
@@ -49,5 +64,17 @@
             <a href="<?= base_url('auth/registro') ?>">¿No tienes cuenta? Regístrate</a>
         </div>
     </div>
+    
+    <script>
+        // Asegurar que los mensajes de error se muestren
+        document.addEventListener('DOMContentLoaded', function() {
+            const errorAlert = document.querySelector('.alert-error');
+            if (errorAlert) {
+                errorAlert.style.display = 'block';
+                // Hacer scroll al mensaje de error
+                errorAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        });
+    </script>
 </body>
 </html>

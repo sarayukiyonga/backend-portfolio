@@ -10,6 +10,7 @@ class ProyectoSeccionModel extends Model
     protected $primaryKey = 'id';
     protected $allowedFields = [
         'proyecto_id',
+        'titulo',
         'tipo_media',
         'media_url',
         'contenido',

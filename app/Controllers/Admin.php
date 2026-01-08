@@ -309,8 +309,10 @@ class Admin extends BaseController
             'rol_id' => $this->request->getPost('rol_id')
         ];
         
-        if ($this->request->getPost('password')) {
-            $data['password'] = password_hash($this->request->getPost('password'), PASSWORD_DEFAULT);
+        // Solo agregar password si se proporcionó (el modelo lo hasheará automáticamente)
+        $password = $this->request->getPost('password');
+        if (!empty($password)) {
+            $data['password'] = $password; // El modelo UsuarioModel tiene un hook beforeUpdate que hashea automáticamente
         }
         
         $this->usuarioModel->update($id, $data);

@@ -237,7 +237,7 @@ class Proyectos extends BaseController
             'caso_estudio' => $this->request->getPost('caso_estudio'),
             'cliente' => $this->request->getPost('cliente'),
             'anio' => $this->request->getPost('anio'),
-            'orden' => $this->request->getPost('orden') ?: 0,
+            'orden' => $this->request->getPost('orden') ?: $this->proyectoModel->getSiguienteOrden(),
             'activo' => 1, // Mantener por compatibilidad
             'estado' => $this->request->getPost('estado'),
             'visibilidad' => $this->request->getPost('visibilidad')
@@ -315,7 +315,7 @@ class Proyectos extends BaseController
             'caso_estudio' => $this->request->getPost('caso_estudio'),
             'cliente' => $this->request->getPost('cliente'),
             'anio' => $this->request->getPost('anio'),
-            'orden' => $this->request->getPost('orden') ?: 0,
+            'orden' => $this->request->getPost('orden') ?: $this->proyectoModel->getSiguienteOrden(),
             'estado' => $this->request->getPost('estado'),
             'visibilidad' => $this->request->getPost('visibilidad')
         ];
@@ -599,6 +599,7 @@ class Proyectos extends BaseController
             
             $data = [
                 'proyecto_id' => $proyectoId,
+                'titulo' => $seccion['titulo'] ?? '',
                 'tipo_media' => $tipoMedia,
                 'media_url' => $mediaUrl,
                 'contenido' => $seccion['contenido'] ?? '',
@@ -616,9 +617,11 @@ class Proyectos extends BaseController
     {
         $seccionesIds = $this->request->getPost('secciones_ids') ?? [];
         
+        // Eliminar secciones que no están en el array de IDs mantenidos
         $seccionesActuales = $this->seccionModel->getSecciones($proyectoId);
         foreach ($seccionesActuales as $seccionActual) {
             if (!in_array($seccionActual['id'], $seccionesIds)) {
+                // Eliminar imagen si existe
                 if ($seccionActual['tipo_media'] == 'imagen' && $seccionActual['media_url']) {
                     $rutaImagen = WRITEPATH . '../public/uploads/proyectos/secciones/' . $seccionActual['media_url'];
                     if (file_exists($rutaImagen)) {
@@ -633,28 +636,49 @@ class Proyectos extends BaseController
         $orden = 1;
         
         foreach ($secciones as $index => $seccion) {
+            // Obtener datos de la sección
             $seccionId = $seccion['id'] ?? null;
             $tipoMedia = $seccion['tipo_media'] ?? 'imagen';
-            $mediaUrl = $seccion['media_url_actual'] ?? null;
+            $mediaUrlActual = $seccion['media_url_actual'] ?? null;
+            $mediaUrl = null;
             
+            // Obtener archivo si se subió uno nuevo
             $file = $this->request->getFile('secciones.' . $index . '.media_file');
             
-            if ($file && $file->isValid()) {
-                if ($mediaUrl && $tipoMedia == 'imagen') {
-                    $rutaAntigua = WRITEPATH . '../public/uploads/proyectos/secciones/' . $mediaUrl;
+            if ($tipoMedia == 'imagen') {
+                // Si se subió un nuevo archivo
+                if ($file && $file->isValid() && !$file->hasMoved()) {
+                    // Eliminar imagen anterior si existe
+                    if ($mediaUrlActual) {
+                        $rutaAntigua = WRITEPATH . '../public/uploads/proyectos/secciones/' . $mediaUrlActual;
+                        if (file_exists($rutaAntigua)) {
+                            unlink($rutaAntigua);
+                        }
+                    }
+                    
+                    // Subir nueva imagen
+                    $mediaUrl = $file->getRandomName();
+                    $file->move(WRITEPATH . '../public/uploads/proyectos/secciones', $mediaUrl);
+                } else {
+                    // Mantener imagen actual si existe
+                    $mediaUrl = $mediaUrlActual;
+                }
+            } elseif ($tipoMedia == 'video') {
+                // Para videos, usar la URL proporcionada
+                $mediaUrl = $seccion['media_url'] ?? '';
+                
+                // Si había una imagen anterior (cambio de imagen a video), eliminarla
+                if ($seccionId && $mediaUrlActual) {
+                    $rutaAntigua = WRITEPATH . '../public/uploads/proyectos/secciones/' . $mediaUrlActual;
                     if (file_exists($rutaAntigua)) {
                         unlink($rutaAntigua);
                     }
                 }
-                
-                $mediaUrl = $file->getRandomName();
-                $file->move(WRITEPATH . '../public/uploads/proyectos/secciones', $mediaUrl);
-            } elseif ($tipoMedia == 'video') {
-                $mediaUrl = $seccion['media_url'] ?? $mediaUrl;
             }
             
             $data = [
                 'proyecto_id' => $proyectoId,
+                'titulo' => $seccion['titulo'] ?? '',
                 'tipo_media' => $tipoMedia,
                 'media_url' => $mediaUrl,
                 'contenido' => $seccion['contenido'] ?? '',
@@ -662,8 +686,10 @@ class Proyectos extends BaseController
             ];
             
             if ($seccionId) {
+                // Actualizar sección existente
                 $this->seccionModel->update($seccionId, $data);
             } else {
+                // Insertar nueva sección
                 $this->seccionModel->insert($data);
             }
         }
@@ -699,6 +725,66 @@ class Proyectos extends BaseController
     private function actualizarGaleria($proyectoId)
     {
         $this->guardarGaleria($proyectoId);
+    }
+    
+    /**
+     * Actualizar orden de proyectos (AJAX)
+     */
+    public function actualizarOrden()
+    {
+        $redirect = $this->verificarAdmin();
+        if ($redirect) return $redirect;
+        
+        // Verificar que sea una petición AJAX
+        if (!$this->request->isAJAX() && !$this->request->getHeaderLine('X-Requested-With')) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Solicitud inválida']);
+        }
+        
+        // Leer datos del POST
+        $ordenes = $this->request->getPost('ordenes');
+        
+        // Si no viene como array directo, intentar leer como JSON
+        if (!$ordenes || !is_array($ordenes)) {
+            $json = $this->request->getJSON(true);
+            if ($json && isset($json['ordenes'])) {
+                $ordenes = $json['ordenes'];
+            }
+        }
+        
+        // Validar datos
+        if (empty($ordenes) || !is_array($ordenes)) {
+            log_message('error', 'Datos inválidos en actualizarOrden. POST completo: ' . json_encode($this->request->getPost()));
+            return $this->response->setJSON([
+                'success' => false, 
+                'message' => 'Datos inválidos. No se recibieron órdenes válidos.',
+                'debug' => [
+                    'post_ordenes' => $this->request->getPost('ordenes'),
+                    'post_completo' => $this->request->getPost()
+                ]
+            ]);
+        }
+        
+        // Validar que todos los valores sean numéricos
+        foreach ($ordenes as $proyectoId => $orden) {
+            if (!is_numeric($proyectoId) || !is_numeric($orden)) {
+                return $this->response->setJSON([
+                    'success' => false, 
+                    'message' => 'Los IDs y órdenes deben ser numéricos'
+                ]);
+            }
+        }
+        
+        try {
+            $this->proyectoModel->actualizarOrden($ordenes);
+            return $this->response->setJSON(['success' => true, 'message' => 'Orden actualizado correctamente']);
+        } catch (\Exception $e) {
+            log_message('error', 'Error al actualizar orden: ' . $e->getMessage());
+            log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+            return $this->response->setJSON([
+                'success' => false, 
+                'message' => 'Error al actualizar el orden: ' . $e->getMessage()
+            ]);
+        }
     }
 }
 

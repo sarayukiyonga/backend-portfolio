@@ -96,39 +96,105 @@
             <!-- Secciones de Contenido -->
             <div class="form-card">
                 <h2 class="form-title">📑 Secciones de Contenido</h2>
-                <p style="color: #666; margin-bottom: 20px;">Gestiona las secciones con imágenes o videos y su contenido</p>
-                
-                <?php if (!empty($proyecto['secciones'])): ?>
-                    <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #ffc107;">
-                        <p style="margin: 0; color: #856404;">
-                            <strong>⚠️ Secciones existentes:</strong> <?= count($proyecto['secciones']) ?> sección(es)<br>
-                            Para modificar, puedes eliminar secciones específicas y agregar nuevas, o editarlas directamente en la base de datos.
-                        </p>
-                    </div>
-                    
-                    <div style="margin-bottom: 20px;">
-                        <h4 style="margin-bottom: 10px;">Secciones Actuales:</h4>
-                        <?php foreach ($proyecto['secciones'] as $index => $seccion): ?>
-                            <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <strong>Sección <?= $index + 1 ?></strong>
-                                    - <?= $seccion['tipo_media'] == 'imagen' ? '📷 Imagen' : '🎥 Video' ?>
-                                    <?php if ($seccion['media_url']): ?>
-                                        <span style="color: #28a745;">✓ Con media</span>
-                                    <?php endif; ?>
-                                </div>
-                                <a href="<?= site_url('proyectos/eliminarSeccion/' . $seccion['id']) ?>" 
-                                   onclick="return confirm('¿Eliminar esta sección?')"
-                                   style="background: #dc3545; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 13px;">
-                                    🗑️ Eliminar
-                                </a>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
+                <p style="color: #666; margin-bottom: 20px;">Edita las secciones existentes o agrega nuevas secciones con imágenes o videos y su contenido</p>
                 
                 <div id="secciones-container" class="secciones-container">
-                    <!-- Las nuevas secciones se agregarán aquí dinámicamente -->
+                    <!-- Las secciones existentes y nuevas se agregarán aquí -->
+                    <?php if (!empty($proyecto['secciones'])): ?>
+                        <?php foreach ($proyecto['secciones'] as $index => $seccion): ?>
+                            <?php 
+                                $seccionNum = $index;
+                                $esExistente = true;
+                                $seccionId = $seccion['id'];
+                                $tipoMedia = $seccion['tipo_media'] ?? 'imagen';
+                                $mediaUrl = $seccion['media_url'] ?? '';
+                                $contenido = $seccion['contenido'] ?? '';
+                                $titulo = $seccion['titulo'] ?? '';
+                            ?>
+                            <div class="seccion-item" id="seccion-existente-<?= $seccionId ?>">
+                                <input type="hidden" name="secciones_ids[]" value="<?= $seccionId ?>">
+                                <input type="hidden" name="secciones[<?= $index ?>][id]" value="<?= $seccionId ?>">
+                                <input type="hidden" name="secciones[<?= $index ?>][media_url_actual]" value="<?= esc($mediaUrl) ?>">
+                                
+                                <div class="seccion-header">
+                                    <span class="seccion-titulo">Sección <?= $index + 1 ?> (Existente)</span>
+                                    <button type="button" class="btn-remove-seccion" onclick="eliminarSeccionExistente(<?= $seccionId ?>, <?= $index ?>)">
+                                        🗑️ Eliminar
+                                    </button>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Título de la Sección</label>
+                                    <input type="text" name="secciones[<?= $index ?>][titulo]" 
+                                           class="form-control" 
+                                           value="<?= esc($titulo) ?>"
+                                           placeholder="Ej: Proceso de Diseño">
+                                    <small class="help-text">Título que se mostrará para esta sección</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Tipo de Media</label>
+                                    <div class="tipo-media-selector">
+                                        <label>
+                                            <input type="radio" name="secciones[<?= $index ?>][tipo_media]" 
+                                                   value="imagen" <?= $tipoMedia == 'imagen' ? 'checked' : '' ?> 
+                                                   onchange="toggleMediaInputExistente(<?= $seccionId ?>, 'imagen')">
+                                            📷 Imagen
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="secciones[<?= $index ?>][tipo_media]" 
+                                                   value="video" <?= $tipoMedia == 'video' ? 'checked' : '' ?> 
+                                                   onchange="toggleMediaInputExistente(<?= $seccionId ?>, 'video')">
+                                            🎥 Video
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group" id="media-imagen-existente-<?= $seccionId ?>" style="display: <?= $tipoMedia == 'imagen' ? 'block' : 'none' ?>;">
+                                    <label>Imagen de la Sección</label>
+                                    <?php if ($tipoMedia == 'imagen' && $mediaUrl): ?>
+                                        <div class="imagen-actual" style="margin-bottom: 10px;">
+                                            <p style="margin-bottom: 10px;"><strong>Imagen actual:</strong></p>
+                                            <img src="<?= base_url('uploads/proyectos/secciones/' . $mediaUrl) ?>" 
+                                                 alt="Imagen sección" style="max-width: 300px; border-radius: 5px;">
+                                            <p style="margin-top: 10px; font-size: 13px; color: #666;">
+                                                Selecciona una nueva imagen solo si deseas cambiarla
+                                            </p>
+                                        </div>
+                                    <?php endif; ?>
+                                    <div class="file-input-wrapper">
+                                        <input type="file" name="secciones[<?= $index ?>][media_file]" 
+                                               id="seccion-img-existente-<?= $seccionId ?>" accept="image/*"
+                                               onchange="previewImage(this, 'preview-seccion-existente-<?= $seccionId ?>')">
+                                        <label for="seccion-img-existente-<?= $seccionId ?>" class="file-input-label">
+                                            📷 <?= $mediaUrl ? 'Cambiar imagen' : 'Seleccionar imagen' ?>
+                                        </label>
+                                        <div id="preview-seccion-existente-<?= $seccionId ?>" class="file-preview"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group" id="media-video-existente-<?= $seccionId ?>" style="display: <?= $tipoMedia == 'video' ? 'block' : 'none' ?>;">
+                                    <label>URL del Video</label>
+                                    <input type="url" name="secciones[<?= $index ?>][media_url]" 
+                                           class="form-control" 
+                                           value="<?= esc($tipoMedia == 'video' ? $mediaUrl : '') ?>"
+                                           placeholder="https://www.youtube.com/watch?v=...">
+                                    <small class="help-text">YouTube, Vimeo, etc.</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Contenido de la Sección</label>
+                                    <textarea name="secciones[<?= $index ?>][contenido]" 
+                                              id="tinymce-existente-<?= $seccionId ?>"
+                                              class="form-control tinymce-existente-<?= $seccionId ?>"><?= esc($contenido) ?></textarea>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                        <script>
+                            // Inicializar contador después de cargar secciones existentes
+                            seccionCounter = <?= count($proyecto['secciones']) ?>;
+                        </script>
+                    <?php endif; ?>
                 </div>
                 
                 <button type="button" class="btn-add" onclick="agregarSeccion()">
@@ -226,8 +292,8 @@
         function initTinyMCE(selector) {
          tinymce.init({
         selector: selector,
-        plugins: 'lists link image table code help wordcount autolink anchor charmap codesample emoticons media ai searchreplace visualblocks wordcount autocorrect a11ychecker  tinymcespellchecker',
-        toolbar: 'undo redo | formatselect | bold italic underline strikethrough | addcomment showcomments | alignleft aligncenter alignright alignjustify lineheight | spellcheckdialog a11ycheck | checklist numlist bullist indent outdent | emoticons charmap | link image | removeformat code',
+        plugins: 'lists link image table code help wordcount autolink anchor charmap codesample emoticons media searchreplace visualblocks wordcount',
+        toolbar: 'undo redo | formatselect | bold italic underline strikethrough | addcomment showcomments | alignleft aligncenter alignright alignjustify lineheight | checklist numlist bullist indent outdent | emoticons charmap | link image | removeformat code',
         tinycomments_mode: 'embedded',
         tinycomments_author: 'Author name',
         mergetags_list: [
@@ -332,9 +398,18 @@
     });
 }
         
-        // Inicializar TinyMCE para caso de estudio
+        // Inicializar TinyMCE para caso de estudio y secciones existentes
         document.addEventListener('DOMContentLoaded', function() {
             initTinyMCE('textarea.tinymce');
+            
+            // Inicializar TinyMCE para todas las secciones existentes
+            <?php if (!empty($proyecto['secciones'])): ?>
+                <?php foreach ($proyecto['secciones'] as $seccion): ?>
+                    setTimeout(() => {
+                        initTinyMCE(`#tinymce-existente-<?= $seccion['id'] ?>`);
+                    }, 200);
+                <?php endforeach; ?>
+            <?php endif; ?>
         });
         
         // Preview de imagen principal
@@ -382,6 +457,13 @@
                         <button type="button" class="btn-remove-seccion" onclick="eliminarSeccion(${seccionNum})">
                             🗑️ Eliminar
                         </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Título de la Sección</label>
+                        <input type="text" name="secciones[${seccionNum}][titulo]" 
+                               class="form-control" placeholder="Ej: Proceso de Diseño">
+                        <small class="help-text">Título que se mostrará para esta sección</small>
                     </div>
                     
                     <div class="form-group">
@@ -451,7 +533,7 @@
             }
         }
         
-        // Cambiar entre imagen y video
+        // Cambiar entre imagen y video (para nuevas secciones)
         function toggleMediaInput(num, tipo) {
             const imagenDiv = document.getElementById(`media-imagen-${num}`);
             const videoDiv = document.getElementById(`media-video-${num}`);
@@ -465,13 +547,59 @@
             }
         }
         
+        // Cambiar entre imagen y video (para secciones existentes)
+        function toggleMediaInputExistente(seccionId, tipo) {
+            const imagenDiv = document.getElementById(`media-imagen-existente-${seccionId}`);
+            const videoDiv = document.getElementById(`media-video-existente-${seccionId}`);
+            
+            if (tipo === 'imagen') {
+                imagenDiv.style.display = 'block';
+                videoDiv.style.display = 'none';
+            } else {
+                imagenDiv.style.display = 'none';
+                videoDiv.style.display = 'block';
+            }
+        }
+        
+        // Eliminar sección existente
+        function eliminarSeccionExistente(seccionId, index) {
+            if (!confirm('¿Eliminar esta sección? Esta acción se guardará al enviar el formulario.')) {
+                return;
+            }
+            
+            // Destruir TinyMCE de esta sección usando el ID
+            const editor = tinymce.get(`tinymce-existente-${seccionId}`);
+            if (editor) {
+                editor.remove();
+            }
+            
+            // Remover el input hidden del array de IDs mantenidos
+            const seccion = document.getElementById(`seccion-existente-${seccionId}`);
+            const hiddenInput = seccion.querySelector('input[name="secciones_ids[]"]');
+            if (hiddenInput) {
+                hiddenInput.remove();
+            }
+            
+            // Ocultar la sección (se eliminará al guardar)
+            seccion.style.display = 'none';
+            seccion.setAttribute('data-eliminada', 'true');
+            
+            renumerarSecciones();
+        }
+        
         // Renumerar secciones visualmente
         function renumerarSecciones() {
-            const secciones = document.querySelectorAll('.seccion-item');
+            const secciones = document.querySelectorAll('.seccion-item:not([data-eliminada="true"])');
             secciones.forEach((seccion, index) => {
                 const titulo = seccion.querySelector('.seccion-titulo');
-                if (titulo.textContent.includes('Nueva Sección')) {
-                    titulo.textContent = `Nueva Sección ${index + 1}`;
+                if (titulo) {
+                    if (titulo.textContent.includes('Nueva Sección')) {
+                        titulo.textContent = `Nueva Sección ${index + 1}`;
+                    } else if (titulo.textContent.includes('Sección') && titulo.textContent.includes('Existente')) {
+                        titulo.textContent = `Sección ${index + 1} (Existente)`;
+                    } else {
+                        titulo.textContent = `Sección ${index + 1}`;
+                    }
                 }
             });
         }
@@ -504,7 +632,16 @@
         
         // Validación antes de enviar
         document.getElementById('formProyecto').addEventListener('submit', function(e) {
+            // Actualizar contenido de TinyMCE antes de enviar
             tinymce.triggerSave();
+            
+            // Remover inputs de secciones eliminadas antes de enviar
+            const seccionesEliminadas = document.querySelectorAll('.seccion-item[data-eliminada="true"]');
+            seccionesEliminadas.forEach(seccion => {
+                // Remover todos los inputs de la sección eliminada
+                const inputs = seccion.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => input.remove());
+            });
         });
     </script>
     <?php include(APPPATH . 'Views/components/sidebar_js.php'); ?>

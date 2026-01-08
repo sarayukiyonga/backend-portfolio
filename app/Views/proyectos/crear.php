@@ -169,8 +169,8 @@
         function initTinyMCE(selector) {
          tinymce.init({
         selector: selector,
-        plugins: 'lists link image table code help wordcount autolink anchor charmap codesample emoticons media ai searchreplace visualblocks wordcount autocorrect a11ychecker  tinymcespellchecker',
-        toolbar: 'undo redo | formatselect | bold italic underline strikethrough | addcomment showcomments | alignleft aligncenter alignright alignjustify lineheight | spellcheckdialog a11ycheck | checklist numlist bullist indent outdent | emoticons charmap | link image | removeformat code',
+        plugins: 'lists link image table code help wordcount autolink anchor charmap codesample emoticons media searchreplace visualblocks wordcount',
+        toolbar: 'undo redo | formatselect | bold italic underline strikethrough | addcomment showcomments | alignleft aligncenter alignright alignjustify lineheight | checklist numlist bullist indent outdent | emoticons charmap | link image | removeformat code',
         tinycomments_mode: 'embedded',
         tinycomments_author: 'Author name',
         mergetags_list: [
@@ -325,6 +325,13 @@
                         <button type="button" class="btn-remove-seccion" onclick="eliminarSeccion(${seccionNum})">
                             🗑️ Eliminar
                         </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Título de la Sección</label>
+                        <input type="text" name="secciones[${seccionNum}][titulo]" 
+                               class="form-control" placeholder="Ej: Proceso de Diseño">
+                        <small class="help-text">Título que se mostrará para esta sección</small>
                     </div>
                     
                     <div class="form-group">

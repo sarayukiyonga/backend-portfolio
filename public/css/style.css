@@ -106,11 +106,6 @@ a:visited {
 
 
 a:hover {
-	/*background: -webkit-linear-gradient(90deg,#519be1,#f87293,#f9b78b); /* Chrome 10-25, Safari 5.1-6 */ 
-	/*background: linear-gradient(90deg,#519be1,#f87293,#f9b78b); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-	/*background-size: cover;
-	-webkit-background-clip:text;
-	-webkit-text-fill-color: transparent;*/
 	color: var(--color-rosa-400);
 }
 .container {
@@ -162,11 +157,6 @@ a:hover #logo {
 }
 
 a:hover #logo p {
-	/*background: -webkit-linear-gradient(90deg,#519be1,#f87293,#f9b78b); /* Chrome 10-25, Safari 5.1-6 */ 
-	/*background: linear-gradient(90deg,#519be1,#f87293,#f9b78b); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-	/*background-size: cover;
-	-webkit-background-clip:text;
-	-webkit-text-fill-color: transparent;*/
 	color: #b30077;
 }
 
@@ -179,18 +169,6 @@ a:hover #logo p {
 	color: white !important;
 }
 
-/* #menu ul li a:visited, #menu ul li a:link {
-	color: white !important;
-}
-
-#menu ul li a:hover {
-	/*background: -webkit-linear-gradient(90deg,#519be1,#f87293,#f9b78b); /* Chrome 10-25, Safari 5.1-6 */ 
-	/*background: linear-gradient(90deg,#519be1,#f87293,#f9b78b); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-	/*background-size: cover;
-	-webkit-background-clip:text;
-	-webkit-text-fill-color: transparent;
-	color: #ff00aa !important;
-} */
 
 #menumobile.w3-button {
 	background-color: transparent !important;

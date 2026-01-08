@@ -72,6 +72,7 @@ $routes->group('proyectos', function($routes) {
     // Nuevas rutas AJAX
     $routes->post('cambiarEstado/(:num)', 'Proyectos::cambiarEstado/$1');
     $routes->post('cambiarVisibilidad/(:num)', 'Proyectos::cambiarVisibilidad/$1');
+    $routes->post('actualizarOrden', 'Proyectos::actualizarOrden');
     // Nueva ruta para subir imágenes de TinyMCE
     $routes->post('subirImagenTinymce', 'Proyectos::subirImagenTinymce');
 });

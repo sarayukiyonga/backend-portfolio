@@ -42,45 +42,59 @@ class Auth extends Controller
         ]);
         
         if (!$validation->withRequest($this->request)->run()) {
-            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
+            return redirect()->to('/auth/login')->withInput()->with('errors', $validation->getErrors());
         }
         
         $email = $this->request->getPost('email');
         $password = $this->request->getPost('password');
         
         $usuarioModel = new UsuarioModel();
-        $usuario = $usuarioModel->verificarCredenciales($email, $password);
         
-        if ($usuario) {
-            // Crear sesión
-            $sessionData = [
-                'usuario_id' => $usuario['id'],
-                'usuario_nombre' => $usuario['nombre'],
-                'usuario_email' => $usuario['email'],
-                'usuario_rol' => $usuario['rol_nombre'],
-                'usuario_rol_id' => $usuario['rol_id'],
-                'isLoggedIn' => true
-            ];
-            
-            session()->set($sessionData);
-            
-            // Redirigir según el rol
-            if ($usuario['rol_nombre'] == 'admin') {
-                return redirect()->to('/admin/dashboard')->with('success', 'Bienvenido ' . $usuario['nombre']);
-            } else {
-                return redirect()->to('/visitante/dashboard')->with('success', 'Bienvenido ' . $usuario['nombre']);
-            }
+        // Primero verificar si el usuario existe
+        $usuarioPorEmail = $usuarioModel->getUsuarioPorEmail($email);
+        
+        if (!$usuarioPorEmail) {
+            log_message('info', "Intento de login fallido - Usuario no encontrado: {$email}");
+            return redirect()->to('/auth/login')->withInput()->with('error', 'No existe una cuenta con ese email.');
+        }
+        
+        // Verificar contraseña
+        if (!password_verify($password, $usuarioPorEmail['password'])) {
+            log_message('info', "Intento de login fallido - Contraseña incorrecta para: {$email}");
+            return redirect()->to('/auth/login')->withInput()->with('error', 'Contraseña incorrecta.');
+        }
+        
+        // Verificar si el usuario está activo
+        if ($usuarioPorEmail['activo'] != 1) {
+            log_message('info', "Intento de login fallido - Usuario inactivo: {$email}");
+            return redirect()->to('/auth/login')->withInput()->with('error', 'Tu cuenta está pendiente de aprobación por un administrador.');
+        }
+        
+        // Verificar que tenga rol asignado
+        if (empty($usuarioPorEmail['rol_id']) || empty($usuarioPorEmail['rol_nombre'])) {
+            log_message('error', "Usuario sin rol asignado: {$email} (ID: {$usuarioPorEmail['id']})");
+            return redirect()->to('/auth/login')->withInput()->with('error', 'Tu cuenta no tiene un rol asignado. Contacta al administrador.');
+        }
+        
+        // Todo correcto, crear sesión
+        $sessionData = [
+            'usuario_id' => $usuarioPorEmail['id'],
+            'usuario_nombre' => $usuarioPorEmail['nombre'],
+            'usuario_email' => $usuarioPorEmail['email'],
+            'usuario_rol' => $usuarioPorEmail['rol_nombre'],
+            'usuario_rol_id' => $usuarioPorEmail['rol_id'],
+            'isLoggedIn' => true
+        ];
+        
+        session()->set($sessionData);
+        
+        log_message('info', "Login exitoso - Usuario: {$email} (Rol: {$usuarioPorEmail['rol_nombre']})");
+        
+        // Redirigir según el rol
+        if ($usuarioPorEmail['rol_nombre'] == 'admin') {
+            return redirect()->to('/admin/dashboard')->with('success', 'Bienvenido ' . $usuarioPorEmail['nombre']);
         } else {
-            // Verificar si el usuario existe pero está inactivo
-            $usuarioInactivo = $usuarioModel->getUsuarioPorEmail($email);
-            
-            if ($usuarioInactivo && password_verify($password, $usuarioInactivo['password'])) {
-                if ($usuarioInactivo['activo'] == 0) {
-                    return redirect()->back()->withInput()->with('error', 'Tu cuenta está pendiente de aprobación por un administrador.');
-                }
-            }
-            
-            return redirect()->back()->withInput()->with('error', 'Credenciales incorrectas');
+            return redirect()->to('/visitante/dashboard')->with('success', 'Bienvenido ' . $usuarioPorEmail['nombre']);
         }
     }
     
