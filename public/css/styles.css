@@ -54,16 +54,18 @@ gap: 20px;
 }
 
 .btn-back {
-background: rgba(255,255,255,0.2);
+background: #667eea;
 color: white;
 padding: 8px 20px;
 border-radius: 5px;
 text-decoration: none;
-transition: background 0.3s;
+transition: all 0.3s;
+font-weight: 500;
 }
 
 .btn-back:hover {
-background: rgba(255,255,255,0.3);
+background: #5568d3;
+transform: translateX(-3px);
 }
 
 

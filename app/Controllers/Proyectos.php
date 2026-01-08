@@ -88,11 +88,12 @@ class Proyectos extends BaseController
     
     /**
      * Portfolio PÚBLICO (sin autenticación)
-     * Muestra solo proyectos PUBLICADOS con visibilidad PÚBLICO
+     * Muestra proyectos PUBLICADOS con visibilidad PÚBLICO o AUTENTICADO
+     * Para proyectos autenticados solo muestra información básica
      */
     public function publico()
     {
-        $proyectos = $this->proyectoModel->listarProyectosPublicos();
+        $proyectos = $this->proyectoModel->listarProyectosPublicosYAutenticados();
         
         $data = [
             'titulo' => 'Nuestros Proyectos',
@@ -113,17 +114,56 @@ class Proyectos extends BaseController
             return redirect()->to('/proyectos/publico')->with('error', 'Proyecto no encontrado');
         }
         
-        // Verificar que sea público
-        if ($proyecto['estado'] !== 'publicado' || $proyecto['visibilidad'] !== 'publico') {
+        // Verificar que esté publicado
+        if ($proyecto['estado'] !== 'publicado') {
             return redirect()->to('/proyectos/publico')->with('error', 'Proyecto no disponible');
         }
         
-        $data = [
-            'titulo' => $proyecto['nombre'],
-            'proyecto' => $proyecto
-        ];
+        // Si es público, mostrar completo
+        if ($proyecto['visibilidad'] === 'publico') {
+            $data = [
+                'titulo' => $proyecto['nombre'],
+                'proyecto' => $proyecto
+            ];
+            
+            return view('proyectos/publico_detalle', $data);
+        }
         
-        return view('proyectos/publico_detalle', $data);
+        // Si es autenticado, verificar si el usuario está logueado
+        if ($proyecto['visibilidad'] === 'autenticado') {
+            // Si está logueado, redirigir a la vista de visitante
+            if (session()->has('usuario_id')) {
+                return redirect()->to('/proyectos/detalle/' . $id);
+            }
+            
+            // Si no está logueado, mostrar overlay de acceso restringido
+            $data = [
+                'titulo' => $proyecto['nombre'],
+                'proyecto' => $proyecto
+            ];
+            
+            return view('proyectos/publico_privado', $data);
+        }
+        
+        // Si es privado, verificar si el usuario es admin
+        if ($proyecto['visibilidad'] === 'privado') {
+            // Si es admin, redirigir a la vista de admin
+            if (session()->has('usuario_id') && session()->get('usuario_rol') === 'admin') {
+                return redirect()->to('/proyectos/ver/' . $id);
+            }
+            
+            // Si no es admin o no está logueado, mostrar overlay de acceso restringido
+            $data = [
+                'titulo' => $proyecto['nombre'],
+                'proyecto' => $proyecto,
+                'esPrivado' => true
+            ];
+            
+            return view('proyectos/publico_privado', $data);
+        }
+        
+        // Por seguridad, redirigir si no cumple ninguna condición
+        return redirect()->to('/proyectos/publico')->with('error', 'Proyecto no disponible');
     }
     
     // ========== MÉTODOS ADMIN ==========

@@ -18,20 +18,20 @@ class Welcome extends BaseController
      */
     public function index()
     {
-        // Obtener proyectos públicos destacados (últimos 6)
+        // Obtener proyectos destacados (públicos, autenticados y privados) - últimos 6
         $proyectosDestacados = $this->proyectoModel
             ->where('estado', 'publicado')
-            ->where('visibilidad', 'publico')
+            ->whereIn('visibilidad', ['publico', 'autenticado', 'privado'])
             ->orderBy('orden', 'ASC')
             ->orderBy('created_at', 'DESC')
             ->limit(6)
             ->findAll();
-        
+
         $data = [
             'titulo' => 'Bienvenido',
             'proyectosDestacados' => $proyectosDestacados
         ];
-        
+
         return view('welcome/index', $data);
     }
     

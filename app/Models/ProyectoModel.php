@@ -81,6 +81,19 @@ class ProyectoModel extends Model
     }
     
     /**
+     * Listar proyectos PUBLICADOS con visibilidad PÚBLICA, AUTENTICADO o PRIVADO
+     * Para mostrar en la vista pública (solo información básica)
+     */
+    public function listarProyectosPublicosYAutenticados()
+    {
+        return $this->where('estado', 'publicado')
+                    ->whereIn('visibilidad', ['publico', 'autenticado', 'privado'])
+                    ->orderBy('orden', 'ASC')
+                    ->orderBy('created_at', 'DESC')
+                    ->findAll();
+    }
+    
+    /**
      * Listar proyectos por estado (para admin)
      */
     public function listarPorEstado($estado)

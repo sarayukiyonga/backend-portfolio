@@ -53,6 +53,61 @@ include 'includes/header.php';
 
     <?php if (!empty($proyectosDestacados)): ?>
         <div class="proyectos-grid">
+                <?php foreach ($proyectosDestacados as $proyecto): ?>
+                    <?php 
+                    $esPublico = $proyecto['visibilidad'] === 'publico';
+                    $esAutenticado = $proyecto['visibilidad'] === 'autenticado';
+                    $esPrivado = $proyecto['visibilidad'] === 'privado';
+                    $esRestringido = $esAutenticado || $esPrivado;
+                    ?>
+                    <div class="proyecto-card <?= $esRestringido ? 'proyecto-privado' : '' ?>" 
+                         onclick="window.location.href='<?= site_url('proyectos/publico/' . $proyecto['id']) ?>'">
+                        <?php if ($esPublico && $proyecto['imagen_principal']): ?>
+                            <img src="<?= base_url('uploads/proyectos/' . $proyecto['imagen_principal']) ?>" 
+                                 alt="<?= esc($proyecto['nombre']) ?>" 
+                                 class="proyecto-imagen">
+                        <?php else: ?>
+                            <!-- Imagen predefinida para proyectos autenticados y privados -->
+                            <div class="proyecto-imagen proyecto-imagen-privada" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px;">
+                                🔒
+                            </div>
+                        <?php endif; ?>
+                        
+                        <div class="proyecto-contenido">
+                            <?php if ($esRestringido): ?>
+                                <div style="background: #fff3cd; padding: 8px; border-radius: 4px; margin-bottom: 10px; text-align: center; font-size: 12px; color: #856404;">
+                                    🔒 <?= $esPrivado ? 'Proyecto Exclusivo' : 'Proyecto Privado' ?>
+                                </div>
+                            <?php else: ?>
+                                <!-- Solo mostrar nombre para proyectos públicos -->
+                                <h2 class="proyecto-nombre">
+                                    <?= esc($proyecto['nombre']) ?>
+                                </h2>
+                            <?php endif; ?>
+                            
+                            <p class="proyecto-descripcion">
+                                <?= esc($proyecto['descripcion']) ?>
+                            </p>
+                            
+                            <div class="proyecto-meta">
+                                <?php if ($proyecto['cliente']): ?>
+                                    <span>👤 <?= esc($proyecto['cliente']) ?></span>
+                                <?php endif; ?>
+                                <?php if ($proyecto['anio']): ?>
+                                    <span>📅 <?= $proyecto['anio'] ?></span>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <a href="<?= site_url('proyectos/publico/' . $proyecto['id']) ?>" 
+                               class="btn-proyecto"
+                               onclick="event.stopPropagation()">
+                                <?= $esPublico ? 'Ver Proyecto Completo →' : 'Ver Detalles →' ?>
+                            </a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <!-- <div class="proyectos-grid">
             <?php foreach ($proyectosDestacados as $proyecto): ?>
                 <div class="proyecto-card"
                     onclick="window.location.href='<?= site_url('proyectos/publico/' . $proyecto['id']) ?>'">
@@ -62,7 +117,7 @@ include 'includes/header.php';
                     <?php else: ?>
                         <div class="proyecto-imagen"></div>
                     <?php endif; ?>
-                    <!--                         
+                                             
                         <div class="proyecto-contenido">
                             <h3 class="proyecto-nombre">
                                 <?= esc($proyecto['nombre']) ?>
@@ -80,10 +135,10 @@ include 'includes/header.php';
                                     <span>📅 <?= $proyecto['anio'] ?></span>
                                 <?php endif; ?>
                             </div>
-                        </div> -->
+                        </div> 
                 </div>
             <?php endforeach; ?>
-        </div>
+        </div> -->
 
         <!-- <div class="ver-mas-section">
             <a href="<?= site_url('proyectos/publico') ?>" class="btn-primary">

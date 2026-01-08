@@ -8,10 +8,13 @@
 <body>
      <?php include(APPPATH . 'Views/components/sidebar.php'); ?>
    <div class="main-content">
-       <?php include(APPPATH . 'Views/components/navbar.php'); ?>
+       <?php
+       $back_url = site_url('proyectos');
+       $back_text = 'Volver';
+       include(APPPATH . 'Views/components/navbar.php');
+       ?>
 
     <div class="container">
-        <a href="<?= site_url('proyectos') ?>" class="btn-back">← Volver</a>
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-error">
                 <strong>Errores:</strong>
@@ -192,7 +195,8 @@
                         <?php endforeach; ?>
                         <script>
                             // Inicializar contador después de cargar secciones existentes
-                            seccionCounter = <?= count($proyecto['secciones']) ?>;
+                            // Usamos un número alto para evitar colisiones con índices de secciones existentes
+                            seccionCounter = <?= count($proyecto['secciones']) + 1000 ?>;
                         </script>
                     <?php endif; ?>
                 </div>
@@ -285,7 +289,7 @@
     </div>
 </div>   
     <script>
-        let seccionCounter = 0;
+        let seccionCounter = 1000; // Iniciar en 1000 para evitar colisiones
         
         // Inicializar TinyMCE
         // Inicializar TinyMCE
